@@ -29,6 +29,9 @@ static AstNode *seq_append(AstNode *list, AstNode *node) {
     PascalType tyval;
 }
 
+%nonassoc LOWER_THAN_ELSE
+%nonassoc TOK_ELSE
+
 /* ── Tokens ─────────────────────────────────────────────────── */
 %token TOK_PROGRAM TOK_BEGIN TOK_END
 %token TOK_VAR TOK_INTEGER TOK_BOOLEAN TOK_OF
@@ -67,9 +70,6 @@ static AstNode *seq_append(AstNode *list, AstNode *node) {
 %left  TOK_PLUS TOK_MINUS
 %left  TOK_STAR TOK_SLASH TOK_DIV TOK_MOD
 %right UMINUS
-
-/* Diz ao Bison para esperar exatamente 1 conflito shift/reduce (o clássico dangling else) */
-%expect 1
 
 %start program
 
@@ -195,32 +195,23 @@ stmt
     | /* empty */   { $$ = NULL; }
     ;
 
-/* ── Statements ─────────────────────────────────────────────── */
-assign_stmt
-    : TOK_IDENT TOK_ASSIGN expr
-        {
-            AstNode *n = ast_node(NK_ASSIGN, yylineno);
-            n->u.assign.name = $1;
-            n->u.assign.expr = $3;
-            $$ = n;
-        }
-    ;
+/* ── Sentenças (Statements) ─────────────────────────────────── */
 
 if_stmt
-    : TOK_IF expr TOK_THEN stmt TOK_ELSE stmt
-        {
-            AstNode *n = ast_node(NK_IF, yylineno);
-            n->u.ifstmt.cond = $2;
-            n->u.ifstmt.then = $4;
-            n->u.ifstmt.els  = $6;
-            $$ = n;
-        }
-    | TOK_IF expr TOK_THEN stmt
+    : TOK_IF expr TOK_THEN stmt %prec LOWER_THAN_ELSE
         {
             AstNode *n = ast_node(NK_IF, yylineno);
             n->u.ifstmt.cond = $2;
             n->u.ifstmt.then = $4;
             n->u.ifstmt.els  = NULL;
+            $$ = n;
+        }
+    | TOK_IF expr TOK_THEN stmt TOK_ELSE stmt
+        {
+            AstNode *n = ast_node(NK_IF, yylineno);
+            n->u.ifstmt.cond = $2;
+            n->u.ifstmt.then = $4;
+            n->u.ifstmt.els  = $6;
             $$ = n;
         }
     ;
@@ -235,43 +226,46 @@ while_stmt
         }
     ;
 
-for_dir
-    : TOK_TO      { $$ = 0; }
-    | TOK_DOWNTO  { $$ = 1; }
-    ;
-
 for_stmt
     : TOK_FOR TOK_IDENT TOK_ASSIGN expr for_dir expr TOK_DO stmt
         {
             AstNode *n = ast_node(NK_FOR, yylineno);
             n->u.forstmt.var    = $2;
             n->u.forstmt.lo     = $4;
-            n->u.forstmt.hi     = $6;
             n->u.forstmt.downto = $5;
+            n->u.forstmt.hi     = $6;
             n->u.forstmt.body   = $8;
             $$ = n;
         }
     ;
 
+for_dir
+    : TOK_TO      { $$ = 1; }
+    | TOK_DOWNTO  { $$ = 0; }
+    ;
+
+assign_stmt
+    : TOK_IDENT TOK_ASSIGN expr
+        {
+            AstNode *n = ast_node(NK_ASSIGN, yylineno);
+            n->u.assign.name = $1;
+            n->u.assign.expr = $3;
+            $$ = n;
+        }
+    ;
+
 write_stmt
-    : TOK_WRITE TOK_LPAREN expr_list TOK_RPAREN
+    : TOK_WRITE TOK_LPAREN arg_list TOK_RPAREN
         {
             AstNode *n = ast_node(NK_WRITE, yylineno);
-            n->u.write.args    = $3;
+            n->u.write.args = $3;
             n->u.write.newline = 0;
             $$ = n;
         }
-    | TOK_WRITELN TOK_LPAREN expr_list TOK_RPAREN
+    | TOK_WRITELN TOK_LPAREN arg_list TOK_RPAREN
         {
             AstNode *n = ast_node(NK_WRITE, yylineno);
-            n->u.write.args    = $3;
-            n->u.write.newline = 1;
-            $$ = n;
-        }
-    | TOK_WRITELN
-        {
-            AstNode *n = ast_node(NK_WRITE, yylineno);
-            n->u.write.args    = NULL;
+            n->u.write.args = $3;
             n->u.write.newline = 1;
             $$ = n;
         }
@@ -283,13 +277,6 @@ call_stmt
             AstNode *n = ast_node(NK_CALL, yylineno);
             n->u.call.name = $1;
             n->u.call.args = $3;
-            $$ = n;
-        }
-    | TOK_IDENT TOK_LPAREN TOK_RPAREN
-        {
-            AstNode *n = ast_node(NK_CALL, yylineno);
-            n->u.call.name = $1;
-            n->u.call.args = NULL;
             $$ = n;
         }
     ;

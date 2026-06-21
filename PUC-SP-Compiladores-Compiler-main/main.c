@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
     }
 
     /* CORREÇÃO DO LINKADOR: Adicionada a flag '-lc' para linkar o printf e o atoi da libc nativa */
-    snprintf(cmd, sizeof(cmd), "clang %s -o %s -lc", objpath, out);
+    snprintf(cmd, sizeof(cmd), "clang -no-pie %s -o %s -lc", objpath, out);
     int rc = system(cmd);
     if (rc != 0) fprintf(stderr, "link failed (exit %d)\n", rc);
 
