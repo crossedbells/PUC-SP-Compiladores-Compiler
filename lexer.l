@@ -8,14 +8,16 @@
 int yyline = 1;
 %}
 
-%option noyywrap nounput noinput
+/* CORREÇÃO: Removidos 'nounput' e 'noinput' e forçada a geração deles */
+%option noyywrap
+%option input unput
 %option yylineno
 
 /* ── Primitives ─────────────────────────────────────────────── */
 DIGIT       [0-9]
 ALPHA       [a-zA-Z_]
 ALNUM       [a-zA-Z0-9_]
-INT_LIT     {DIGIT}+\
+INT_LIT     {DIGIT}+
 IDENT       {ALPHA}{ALNUM}*
 
 /* ── Comment patterns ───────────────────────────────────────── */
@@ -74,7 +76,8 @@ IDENT       {ALPHA}{ALNUM}*
 "'"                 {
                       char s[1024];
                       int si = 0;
-                      int i = 1;
+                      /* CORREÇÃO: Removida a variável 'i' não utilizada para sanar o warning */
+                      
                       /* read until closing quote, handling escaped single quotes */
                       while (1) {
                           char c = input();
@@ -102,6 +105,9 @@ IDENT       {ALPHA}{ALNUM}*
                       yylval.sval = strdup(s);
                       return TOK_STR_LIT;
                     }
+
+ /* ── Integer literal ─────────────────────────────────────────── */
+{INT_LIT}           { yylval.ival = atol(yytext); return TOK_INT_LIT; }
 
  /* ── Identifier ─────────────────────────────────────────────── */
 {IDENT}             { yylval.sval = strdup(yytext); return TOK_IDENT; }

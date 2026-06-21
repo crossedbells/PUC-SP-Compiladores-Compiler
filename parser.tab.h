@@ -54,55 +54,56 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    TOK_PROGRAM = 258,             /* TOK_PROGRAM  */
-    TOK_BEGIN = 259,               /* TOK_BEGIN  */
-    TOK_END = 260,                 /* TOK_END  */
-    TOK_VAR = 261,                 /* TOK_VAR  */
-    TOK_INTEGER = 262,             /* TOK_INTEGER  */
-    TOK_BOOLEAN = 263,             /* TOK_BOOLEAN  */
-    TOK_OF = 264,                  /* TOK_OF  */
-    TOK_IF = 265,                  /* TOK_IF  */
-    TOK_THEN = 266,                /* TOK_THEN  */
-    TOK_ELSE = 267,                /* TOK_ELSE  */
-    TOK_WHILE = 268,               /* TOK_WHILE  */
-    TOK_DO = 269,                  /* TOK_DO  */
-    TOK_FOR = 270,                 /* TOK_FOR  */
-    TOK_TO = 271,                  /* TOK_TO  */
-    TOK_DOWNTO = 272,              /* TOK_DOWNTO  */
-    TOK_PROCEDURE = 273,           /* TOK_PROCEDURE  */
-    TOK_FUNCTION = 274,            /* TOK_FUNCTION  */
-    TOK_WRITE = 275,               /* TOK_WRITE  */
-    TOK_WRITELN = 276,             /* TOK_WRITELN  */
-    TOK_AND = 277,                 /* TOK_AND  */
-    TOK_OR = 278,                  /* TOK_OR  */
-    TOK_NOT = 279,                 /* TOK_NOT  */
-    TOK_DIV = 280,                 /* TOK_DIV  */
-    TOK_MOD = 281,                 /* TOK_MOD  */
-    TOK_PARAMCOUNT = 282,          /* TOK_PARAMCOUNT  */
-    TOK_PARAMSTR = 283,            /* TOK_PARAMSTR  */
-    TOK_ASSIGN = 284,              /* TOK_ASSIGN  */
-    TOK_SEMI = 285,                /* TOK_SEMI  */
-    TOK_COLON = 286,               /* TOK_COLON  */
-    TOK_COMMA = 287,               /* TOK_COMMA  */
-    TOK_DOT = 288,                 /* TOK_DOT  */
-    TOK_LPAREN = 289,              /* TOK_LPAREN  */
-    TOK_RPAREN = 290,              /* TOK_RPAREN  */
-    TOK_EQ = 291,                  /* TOK_EQ  */
-    TOK_NEQ = 292,                 /* TOK_NEQ  */
-    TOK_LT = 293,                  /* TOK_LT  */
-    TOK_LE = 294,                  /* TOK_LE  */
-    TOK_GT = 295,                  /* TOK_GT  */
-    TOK_GE = 296,                  /* TOK_GE  */
-    TOK_PLUS = 297,                /* TOK_PLUS  */
-    TOK_MINUS = 298,               /* TOK_MINUS  */
-    TOK_STAR = 299,                /* TOK_STAR  */
-    TOK_SLASH = 300,               /* TOK_SLASH  */
-    TOK_INT_LIT = 301,             /* TOK_INT_LIT  */
-    TOK_TRUE = 302,                /* TOK_TRUE  */
-    TOK_FALSE = 303,               /* TOK_FALSE  */
-    TOK_IDENT = 304,               /* TOK_IDENT  */
-    TOK_STR_LIT = 305,             /* TOK_STR_LIT  */
-    UMINUS = 306                   /* UMINUS  */
+    LOWER_THAN_ELSE = 258,         /* LOWER_THAN_ELSE  */
+    TOK_PROGRAM = 259,             /* TOK_PROGRAM  */
+    TOK_BEGIN = 260,               /* TOK_BEGIN  */
+    TOK_END = 261,                 /* TOK_END  */
+    TOK_VAR = 262,                 /* TOK_VAR  */
+    TOK_INTEGER = 263,             /* TOK_INTEGER  */
+    TOK_BOOLEAN = 264,             /* TOK_BOOLEAN  */
+    TOK_OF = 265,                  /* TOK_OF  */
+    TOK_IF = 266,                  /* TOK_IF  */
+    TOK_THEN = 267,                /* TOK_THEN  */
+    TOK_ELSE = 268,                /* TOK_ELSE  */
+    TOK_WHILE = 269,               /* TOK_WHILE  */
+    TOK_DO = 270,                  /* TOK_DO  */
+    TOK_FOR = 271,                 /* TOK_FOR  */
+    TOK_TO = 272,                  /* TOK_TO  */
+    TOK_DOWNTO = 273,              /* TOK_DOWNTO  */
+    TOK_PROCEDURE = 274,           /* TOK_PROCEDURE  */
+    TOK_FUNCTION = 275,            /* TOK_FUNCTION  */
+    TOK_WRITE = 276,               /* TOK_WRITE  */
+    TOK_WRITELN = 277,             /* TOK_WRITELN  */
+    TOK_AND = 278,                 /* TOK_AND  */
+    TOK_OR = 279,                  /* TOK_OR  */
+    TOK_NOT = 280,                 /* TOK_NOT  */
+    TOK_DIV = 281,                 /* TOK_DIV  */
+    TOK_MOD = 282,                 /* TOK_MOD  */
+    TOK_PARAMCOUNT = 283,          /* TOK_PARAMCOUNT  */
+    TOK_PARAMSTR = 284,            /* TOK_PARAMSTR  */
+    TOK_ASSIGN = 285,              /* TOK_ASSIGN  */
+    TOK_SEMI = 286,                /* TOK_SEMI  */
+    TOK_COLON = 287,               /* TOK_COLON  */
+    TOK_COMMA = 288,               /* TOK_COMMA  */
+    TOK_DOT = 289,                 /* TOK_DOT  */
+    TOK_LPAREN = 290,              /* TOK_LPAREN  */
+    TOK_RPAREN = 291,              /* TOK_RPAREN  */
+    TOK_EQ = 292,                  /* TOK_EQ  */
+    TOK_NEQ = 293,                 /* TOK_NEQ  */
+    TOK_LT = 294,                  /* TOK_LT  */
+    TOK_LE = 295,                  /* TOK_LE  */
+    TOK_GT = 296,                  /* TOK_GT  */
+    TOK_GE = 297,                  /* TOK_GE  */
+    TOK_PLUS = 298,                /* TOK_PLUS  */
+    TOK_MINUS = 299,               /* TOK_MINUS  */
+    TOK_STAR = 300,                /* TOK_STAR  */
+    TOK_SLASH = 301,               /* TOK_SLASH  */
+    TOK_INT_LIT = 302,             /* TOK_INT_LIT  */
+    TOK_TRUE = 303,                /* TOK_TRUE  */
+    TOK_FALSE = 304,               /* TOK_FALSE  */
+    TOK_IDENT = 305,               /* TOK_IDENT  */
+    TOK_STR_LIT = 306,             /* TOK_STR_LIT  */
+    UMINUS = 307                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -118,7 +119,7 @@ union YYSTYPE
     AstNode *node;
     PascalType tyval;
 
-#line 122 "parser.tab.h"
+#line 123 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

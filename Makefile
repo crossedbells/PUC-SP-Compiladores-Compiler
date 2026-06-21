@@ -1,27 +1,26 @@
+LLVM_CONFIG := llvm-config
+
 CC      := gcc
-CFLAGS  := -std=c11 -Wall -Wextra -O2 $(shell llvm-config --cflags)
-LDFLAGS := $(shell llvm-config --libs core native --link-static 2>/dev/null \
-            || llvm-config --libs core native) \
-           $(shell llvm-config --system-libs) \
-           -lm
+CFLAGS := -std=c11 -Wall -Wextra -O2 $(shell $(LLVM_CONFIG) --cflags) -Wno-unused-parameter -Wno-unused-function
+LDFLAGS := $(shell $(LLVM_CONFIG) --ldflags) \
+           $(shell $(LLVM_CONFIG) --libs all) \
+           $(shell $(LLVM_CONFIG) --system-libs) \
+           -lz -lm -lstdc++
 
 TARGET  := minipasc
 SRCS    := main.c ast.c codegen.c
 OBJS    := $(SRCS:.c=.o) lex.yy.o parser.tab.o
 
-.PHONY: all clean distclean test
+.PHONY: all clean test
 
 all: $(TARGET)
 
-# ── Flex ─────────────────────────────────────────────────────
 lex.yy.c: lexer.l parser.tab.h
 	flex -o $@ $<
 
-# ── Bison ────────────────────────────────────────────────────
 parser.tab.c parser.tab.h: parser.y
 	bison -d -Wcounterexamples -o parser.tab.c $<
 
-# ── Generic C compile ─────────────────────────────────────────
 %.o: %.c
 	$(CC) $(CFLAGS) -I. -c $< -o $@
 
@@ -31,15 +30,11 @@ lex.yy.o: lex.yy.c parser.tab.h
 parser.tab.o: parser.tab.c
 	$(CC) $(CFLAGS) -I. -c $< -o $@
 
-# ── Link ─────────────────────────────────────────────────────
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -I. -o $@ $^ $(LDFLAGS)
 
-# ── Test programs ─────────────────────────────────────────────
 test: $(TARGET)
 	@bash run_tests.sh
 
 clean:
-	rm -f $(TARGET) $(OBJS) lex.yy.c parser.tab.c parser.tab.h /tmp/compile_err
-
-distclean: clean
+	rm -f $(TARGET) $(OBJS) lex.yy.c parser.tab.c parser.tab.h
