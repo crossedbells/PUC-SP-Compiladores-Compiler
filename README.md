@@ -67,9 +67,6 @@ bison --version
 clang --version
 
 ```
-
-*(Recomendado anexar print desta saída no repositório)*
-
 ---
 
 ## ⚙️ How to Build the Compiler
