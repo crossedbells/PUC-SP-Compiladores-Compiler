@@ -1,7 +1,3 @@
-Aqui está um modelo de **`README.md`** completo, estruturado exatamente como o seu professor pediu, cobrindo todos os requisitos e já incluindo o que fizemos para o `pidigits` e a estrutura que vocês implementaram em C com a API C do LLVM.
-
-Basta copiar o conteúdo abaixo, ajustar os nomes dos integrantes do grupo e os prints de evidência!
-
 ---
 
 # Mini-Pascal Toy Compiler 🐲
