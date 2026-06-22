@@ -110,11 +110,15 @@ static LLVMValueRef emit_expr(CG *g, AstNode *n) {
         case NK_BOOL_LIT:
             return const_i1(g, n->u.bliteral.value);
 
-        case NK_IDENT: {
+case NK_IDENT: {
             const char *name = n->u.ident.name;
 
             if (!strcmp(name, " ")) {
                 return make_str(g, " ", ".char_space");
+            }
+
+            if (!strcmp(name, ".")) {
+                return make_str(g, ".", ".char_dot");
             }
 
             /* paramcount */
