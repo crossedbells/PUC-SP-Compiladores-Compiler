@@ -14,9 +14,8 @@ Este projeto consiste no desenvolvimento de um compilador completo para a lingua
 
 ## 🃏 Team Members
 
-* **Nicol [Sobrenome]** - RA: [Seu RA]
-* **[Nome do Integrante 2]** - RA: [RA]
-* **[Nome do Integrante 3]** - RA: [RA]
+* **Nícolas Okamoto Celestrino** - RA: 00345719
+* **Gabriel Mechi Lima** - RA: 00321639
 
 ---
 
@@ -24,8 +23,8 @@ Este projeto consiste no desenvolvimento de um compilador completo para a lingua
 
 Em conformidade com as diretrizes do projeto, utilizamos Inteligência Artificial de forma estratégica:
 
-* **Assistente de Desenvolvimento (Coding):** ChatGPT / Gemini (Prompts em inglês para geração de estruturas de nós da AST e mapeamento de chamadas da API C do LLVM no `codegen.c`).
-* **Assistente de Revisão e Documentação:** Gemini (Estruturação deste README, formatação e revisão das lógicas de tratamento de strings no gerador de código).
+* **Assistente de Desenvolvimento (Coding):** Claude.AI / Gemini (Prompts em inglês para geração de estruturas de nós da AST e mapeamento de chamadas da API C do LLVM no `codegen.c`).
+* **Assistente de Revisão e Documentação:** Gemini/Claude.AI (Estruturação deste README, formatação e revisão das lógicas de tratamento de strings no gerador de código).
 
 ---
 
@@ -170,6 +169,18 @@ Como o parser do Mini-Pascal trata literais curtos como identificadores (`NK_IDE
 ---
 
 ## 📸 Execution Evidences
+
+factor.pas: 
+<img width="433" height="28" alt="image" src="https://github.com/user-attachments/assets/d3800b24-1d1a-4160-ab80-d2f36da6c58c" />
+
+isprime.pas:
+<img width="439" height="53" alt="image" src="https://github.com/user-attachments/assets/8b23f0a1-077f-49c2-a8b7-2c3d3fb78a82" />
+
+fibonacci.pas: 
+<img width="442" height="60" alt="image" src="https://github.com/user-attachments/assets/fb6ce87d-45f9-4503-b114-7ff635b44900" />
+
+pidigits.pas:
+<img width="425" height="56" alt="image" src="https://github.com/user-attachments/assets/89f192c2-c240-41ea-87ad-7d7bf8a4a313" />
 
 
 ---
