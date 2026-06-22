@@ -48,6 +48,11 @@ CG *cg_create(const char *module_name) {
     g->ctx = LLVMContextCreate();
     g->mod = LLVMModuleCreateWithNameInContext(module_name, g->ctx);
     g->bld = LLVMCreateBuilderInContext(g->ctx);
+    
+    char *triple = LLVMGetDefaultTargetTriple();
+    LLVMSetTarget(g->mod, triple);
+    LLVMDisposeMessage(triple);
+
     declare_externs(g);
     return g;
 }
@@ -65,12 +70,15 @@ static LLVMValueRef lookup_slot(CG *g, const char *name) {
         /* paramcount = argc - 1 */
         return NULL; /* handled inline in emit_expr */
     }
-    Symbol *sym = sym_lookup(g->syms, name);
-    if (!sym) {
-        /* could be the function return variable */
-        if (g->cur_fn && !strcmp(name, LLVMGetValueName(g->cur_fn))) {
+    
+    if (g->cur_fn && !strcmp(name, LLVMGetValueName(g->cur_fn))) {
+        if (g->cur_fn_retslot) {
             return g->cur_fn_retslot;
         }
+    }
+
+    Symbol *sym = sym_lookup(g->syms, name);
+    if (!sym) {
         fprintf(stderr, "codegen: undefined symbol '%s'\n", name);
         exit(1);
     }
@@ -104,6 +112,11 @@ static LLVMValueRef emit_expr(CG *g, AstNode *n) {
 
         case NK_IDENT: {
             const char *name = n->u.ident.name;
+
+            if (!strcmp(name, " ")) {
+                return make_str(g, " ", ".char_space");
+            }
+
             /* paramcount */
             if (!strcmp(name, "__paramcount")) {
                 return LLVMBuildSub(g->bld, g->llvm_argc, const_i32(g, 1), "paramcount");
@@ -418,21 +431,14 @@ static void emit_decls(CG *g, AstNode *n) {
 static void emit_proc(CG *g, AstNode *n) {
     int is_func = (n->kind == NK_FUNC_DECL);
 
-    /* build parameter type list */
-    LLVMTypeRef param_types[64];
-    unsigned    nparams = 0;
-    for (AstNode *p = n->u.proc.params; p && nparams < 64; p = p->next)
-        param_types[nparams++] = pascal_to_llvm(g, p->u.var.vtype);
-
+    /* FIX: Busca a função que já foi previamente declarada no Passo 1 */
+    Symbol *fsym = sym_lookup(g->syms, n->u.proc.name);
+    if (!fsym) {
+        fprintf(stderr, "codegen: internal error, prototype for '%s' missing\n", n->u.proc.name);
+        exit(1);
+    }
+    LLVMValueRef fn = fsym->llvm_val;
     LLVMTypeRef ret_ty = is_func ? pascal_to_llvm(g, n->u.proc.rettype) : ty_void(g);
-    LLVMTypeRef fn_ty  = LLVMFunctionType(ret_ty, param_types, nparams, 0);
-    LLVMValueRef fn    = LLVMAddFunction(g->mod, n->u.proc.name, fn_ty);
-
-    /* register in symbol table */
-    Symbol *sym = sym_insert(g->syms, n->u.proc.name,
-                             is_func ? SYM_FUNC : SYM_PROC,
-                             is_func ? n->u.proc.rettype : TY_VOID);
-    sym->llvm_val = fn;
 
     /* save outer context */
     LLVMValueRef   outer_fn      = g->cur_fn;
@@ -466,14 +472,15 @@ static void emit_proc(CG *g, AstNode *n) {
     if (is_func) {
         g->cur_fn_retslot = LLVMBuildAlloca(g->bld, ret_ty, "retval");
         LLVMBuildStore(g->bld, LLVMConstNull(ret_ty), g->cur_fn_retslot);
-        /* register as assignable via function name */
-        Symbol *rs = sym_insert(&local_syms, n->u.proc.name, SYM_FUNC, n->u.proc.rettype);
-        rs->llvm_val = g->cur_fn_retslot;
+        /* FIX: Removido o sym_insert defeituoso que quebrava a recursão */
     } else {
         g->cur_fn_retslot = NULL;
     }
 
     /* bind parameters */
+    unsigned nparams = 0;
+    for (AstNode *p = n->u.proc.params; p; p = p->next) nparams++;
+
     unsigned pi = 0;
     for (AstNode *p = n->u.proc.params; p && pi < nparams; p = p->next, pi++) {
         LLVMValueRef pval  = LLVMGetParam(fn, pi);
@@ -538,11 +545,32 @@ void cg_emit(CG *g, AstNode *root, SymTable *syms) {
     g->llvm_argc = LLVMGetParam(main_fn, 0);
     g->llvm_argv = LLVMGetParam(main_fn, 1);
 
-    /* ── First pass: emit proc/func decls ── */
+    /* ── FIX PASSO 1: Registrar todos os protótipos primeiro ── */
+    for (AstNode *d = block->u.block.decls; d != NULL; d = d->next) {
+        if (d->kind == NK_PROC_DECL || d->kind == NK_FUNC_DECL) {
+            int is_func = (d->kind == NK_FUNC_DECL);
+            LLVMTypeRef param_types[64];
+            unsigned nparams = 0;
+            for (AstNode *p = d->u.proc.params; p && nparams < 64; p = p->next)
+                param_types[nparams++] = pascal_to_llvm(g, p->u.var.vtype);
+
+            LLVMTypeRef ret_ty = is_func ? pascal_to_llvm(g, d->u.proc.rettype) : ty_void(g);
+            LLVMTypeRef fn_ty  = LLVMFunctionType(ret_ty, param_types, nparams, 0);
+            LLVMValueRef fn    = LLVMAddFunction(g->mod, d->u.proc.name, fn_ty);
+
+            Symbol *sym = sym_insert(g->syms, d->u.proc.name,
+                                     is_func ? SYM_FUNC : SYM_PROC,
+                                     is_func ? d->u.proc.rettype : TY_VOID);
+            sym->llvm_val = fn;
+        }
+    }
+
+    /* ── FIX PASSO 2: Emitir os corpos das funções/procedimentos ── */
     for (AstNode *d = block->u.block.decls; d != NULL; d = d->next) {
         if (d->kind == NK_PROC_DECL || d->kind == NK_FUNC_DECL)
             emit_proc(g, d);
     }
+    
     /* re-position after proc decls may have moved builder */
     LLVMPositionBuilderAtEnd(g->bld, entry);
 
